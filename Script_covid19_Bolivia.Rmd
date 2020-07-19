@@ -229,7 +229,7 @@ for(i in 2:9){
         add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Recuperados,
                   name="Total Recuperados",visible=F,line=list(color="#51C218")) %>% 
         add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Activos,
-                  name="Total Activos",visible=F,line=list(color="#FC2020"))}
+                  name="Total Activos",visible=F,line=list(color="#FC2020")) }
 
 dep_acum%>%  
    layout(
