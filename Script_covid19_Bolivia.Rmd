@@ -11,7 +11,7 @@ Se muestra en este reporte el registro diario de:
 * Casos nuevos y acumulados de los Departamentos por tipo de caso.
 * Casos nuevos y acumulados de los tipos de Casos por Departamento.
 
-Son gráfico dinámicos, puede pulsar tanto en los botones como en las leyendas de acuerdo a la información que se requiera.
+En los gráficos dinámicos se puede pulsar en los botones y en las leyendas de acuerdo a la información que se requiera.
 
 ```{r base_datos, echo=FALSE}
 #pq=c("knitr","readxl","dplyr","purrr","glue","plotly")
