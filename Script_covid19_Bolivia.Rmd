@@ -285,4 +285,4 @@ acumulados%>%
 
 ```
 
-Los datos utilizados son de **<https://www.boliviasegura.gob.bo>**.
+Los datos utilizados son de **<https://boliviasegura.gob.bo>**.
