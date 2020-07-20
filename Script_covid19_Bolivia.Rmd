@@ -7,19 +7,19 @@ output: html_notebook
 
 Se muestra en este reporte el registro diario de:
 
-* Tipo de Casos por Departamento (nuevos casos y acumulados).
-* Departamentos por tipo de caso (nuevos casos y acumulados).
+* Casos nuevos y acumulados de Bolivia.
+* Casos nuevos y acumulados de los Departamentos por tipo de caso.
+* Casos nuevos y acumulados de los tipos de Casos por Departamento.
 
-Los datos utilizados son de **<https://www.boliviasegura.gob.bo>**.
-
+Son gráfico dinámicos, puede pulsar tanto en los botones como en las leyendas de acuerdo a la información que se requiera.
 
 ```{r base_datos, echo=FALSE}
 #pq=c("knitr","readxl","dplyr","purrr","glue","plotly")
 #install.packages(pq)
 library(knitr)
 library(readxl)
-library(purrr);#accumulate
-#library(glue);#antes de plotly
+library(purrr)#accumulate
+library(glue)#antes de plotly
 library(dplyr)
 library(ggplot2)
 library(plotly)
@@ -36,29 +36,188 @@ for(i in 1:9){
          Total_Activos= Activos %>%  accumulate(`+`))
  bd[i]=list(bd_dep)}
 
+Bolivia=data.frame(as.Date(bd[[9]]$Fecha)) %>% 
+  mutate(dep="Bolivia",Confirmados=0,Decesos=0,Recuperados=0,Activos=0,
+         Total_Confirmados=0,Total_Decesos=0,Total_Recuperados=0,Total_Activos=0) %>% 
+  select(Fecha="as.Date.bd..9...Fecha.",dep:Total_Activos)
 
-etiqueta_dep=c("Beni","Cochabamba","Chuquisaca","La Paz","Oruro","Pando","Potosí","Santa Cruz","Tarija")
+for (i in 1:9) {
+  Bolivia$Confirmados=Bolivia$Confirmados+bd[[i]]$Confirmados
+  Bolivia$Decesos=Bolivia$Decesos+bd[[i]]$Decesos
+  Bolivia$Recuperados=Bolivia$Recuperados+bd[[i]]$Recuperados
+  Bolivia$Activos=Bolivia$Activos+bd[[i]]$Activos
+  Bolivia$Total_Confirmados=Bolivia$Total_Confirmados+bd[[i]]$Total_Confirmados
+  Bolivia$Total_Decesos=Bolivia$Total_Decesos+bd[[i]]$Total_Decesos
+  Bolivia$Total_Recuperados=Bolivia$Total_Recuperados+bd[[i]]$Total_Recuperados
+  Bolivia$Total_Activos=Bolivia$Total_Activos+bd[[i]]$Total_Activos
+}
+
+bd[10]=list(Bolivia)
+
+etiqueta_dep=c("Beni","Cochabamba","Chuquisaca","La Paz","Oruro","Pando","Potosí","Santa Cruz","Tarija","Bolivia")
 names(bd)=etiqueta_dep
 ```
 
-# Tipo de Casos por Departamento
+# Bolivia
 
-## Nuevos Casos
+```{r fig.width=8,fig.height=5,echo=FALSE}
 
-```{r fig.width=10,fig.height=5,echo=FALSE}
+plot_ly(type = "scatter",mode='lines') %>% 
+  add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Confirmados,
+            name="Confirmados",visible=T,line=list(color="#FA975A")) %>% 
+  add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Decesos,
+            name="Decesos",visible=T,line=list(color="#494451")) %>% 
+  add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Recuperados ,
+            name="Recuperados",visible=T,line=list(color="#4EF151")) %>% 
+  
+  add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Total_Confirmados,
+            name="Total Confirmados",visible=F,line=list(color="#FA975A")) %>% 
+  add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Total_Decesos,
+            name="Total Decesos",visible=F,line=list(color="#494451")) %>% 
+  add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Total_Recuperados,
+            name="Total Recuperados",visible=F,line=list(color="#4EF151")) %>% 
+  add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Total_Activos,
+            name="Total Activos",visible=F,line=list(color="#F94331")) %>% 
+  layout(updatemenus=list(list(type='buttons',direction = "right",xanchor = 'right',yanchor = "top",
+  pad = list('r'= 80, 't'= 25),x = 0.5,y = 1.25,
+  buttons=list(list(label="Nuevos Casos",methos="relayout",args=list("visible",c(F,T,T,T,F,F,F,F))),
+                             list(label="Casos Acumulados",methos="update",args=list("visible",c(F,F,F,F,T,T,T,T))))
+          ))
+)
+
+```
+
+
+# Departamentos
+
+## Tipo de casos nuevos
+
+```{r fig.width=8,fig.height=5,echo=FALSE}
+t3=c(T,T,T)
+f3=c(F,F,F)
+bn3=c(F,t3,f3,f3,f3,f3,f3,f3,f3,f3)
+cb3=c(f3,F ,t3,f3,f3,f3,f3,f3,f3,f3)
+ch3=c(f3,f3,F ,t3,f3,f3,f3,f3,f3,f3)
+lp3=c(f3,f3,f3,F ,t3,f3,f3,f3,f3,f3)
+or3=c(f3,f3,f3,f3,F ,t3,f3,f3,f3,f3)
+pn3=c(f3,f3,f3,f3,f3,F ,t3,f3,f3,f3)
+pt3=c(f3,f3,f3,f3,f3,f3,F ,t3,f3,f3)
+sc3=c(f3,f3,f3,f3,f3,f3,f3,F ,t3,f3)
+tj3=c(f3,f3,f3,f3,f3,f3,f3,f3,F ,t3)
+
+botones_3=list(list(type='buttons',direction = "right",xanchor = 'center',yanchor = "top",
+  pad = list('r'= 0, 't'= 25),x = 0.5,y = 1.25,
+                buttons=list(list(label="Beni",methos="update",args=list("visible",bn3)),
+                             list(label="Cochabamba",methos="update",args=list("visible",cb3)),
+                             list(label="Chuquisaca",methos="update",args=list("visible",ch3)),
+                             list(label="La Paz",methos="update",args=list("visible",lp3)),
+                             list(label="Oruro",methos="update",args=list("visible",or3)),
+                             list(label="Pando",methos="update",args=list("visible",pn3)),
+                             list(label="Potosí",methos="update",args=list("visible",pt3)),
+                             list(label="Santa Cruz",methos="update",args=list("visible",sc3)),
+                             list(label="Tarija",methos="update",args=list("visible",tj3)))
+))
+
+dep=plot_ly(type = "scatter",mode="lines") %>% 
+  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Confirmados,
+            name="Confirmados",visible=T,line=list(color="#FA975A")) %>% 
+  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Decesos,
+            name="Decesos",visible=T,line=list(color="#494451")) %>% 
+  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Recuperados ,
+            name="Recuperados",visible=T,line=list(color="#4EF151"))
+
+for(i in 2:9){
+      dep=dep %>% 
+        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Confirmados,
+                  name="Confirmados",visible=F,line=list(color="#FA975A")) %>% 
+        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Decesos,
+                  name="Decesos",visible=F,line=list(color="#494451")) %>% 
+        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Recuperados,
+                  name="Recuperados",visible=F,line=list(color="#4EF151"))}
+
+dep%>%  
+   layout(
+    updatemenus=botones_3)
+
+```
+
+
+## Tipo de casos acumulados
+
+
+```{r fig.width=8,fig.height=5,echo=FALSE}
+t4=c(T,T,T,T)
+f4=c(F,F,F,F)
+
+bn4=c(F,t4,f4,f4,f4,f4,f4,f4,f4,f4)
+cb4=c(f4,F ,t4,f4,f4,f4,f4,f4,f4,f4)
+ch4=c(f4,f4,F ,t4,f4,f4,f4,f4,f4,f4)
+lp4=c(f4,f4,f4,F ,t4,f4,f4,f4,f4,f4)
+or4=c(f4,f4,f4,f4,F ,t4,f4,f4,f4,f4)
+pn4=c(f4,f4,f4,f4,f4,F ,t4,f4,f4,f4)
+pt4=c(f4,f4,f4,f4,f4,f4,F ,t4,f4,f4)
+sc4=c(f4,f4,f4,f4,f4,f4,f4,F ,t4,f4)
+tj4=c(f4,f4,f4,f4,f4,f4,f4,f4,F ,t4)
+
+botones_4=list(list(type='buttons',direction = "right",xanchor = 'center',yanchor = "top",
+  pad = list('r'= -20, 't'= 25),x = 0.5,y = 1.25,
+                buttons=list(list(label="Beni",methos="update",args=list("visible",bn4)),
+                             list(label="Cochabamba",methos="update",args=list("visible",cb4)),
+                             list(label="Chuquisaca",methos="update",args=list("visible",ch4)),
+                             list(label="La Paz",methos="update",args=list("visible",lp4)),
+                             list(label="Oruro",methos="update",args=list("visible",or4)),
+                             list(label="Pando",methos="update",args=list("visible",pn4)),
+                             list(label="Potosí",methos="update",args=list("visible",pt4)),
+                             list(label="Santa Cruz",methos="update",args=list("visible",sc4)),
+                             list(label="Tarija",methos="update",args=list("visible",tj4)))
+))
+
+dep_acum=plot_ly(type = "scatter",mode="lines") %>% 
+  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Total_Confirmados,
+            name="Total Confirmados",visible=T,line=list(color="#FA975A")) %>% 
+  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Total_Decesos,
+            name="Total Decesos",visible=T,line=list(color="#494451")) %>% 
+  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Total_Recuperados,
+            name="Total Recuperados",visible=T,line=list(color="#4EF151")) %>% 
+  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Total_Activos,
+            name="Total Activos",visible=T,line=list(color="#F94331")) 
+
+
+for(i in 2:9){
+      dep_acum=dep_acum %>% 
+        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Confirmados,
+                  name="Total Confirmados",visible=F,line=list(color="#FA975A")) %>% 
+        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Decesos,
+                  name="Total Decesos",visible=F,line=list(color="#494451")) %>% 
+        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Recuperados,
+                  name="Total Recuperados",visible=F,line=list(color="#4EF151")) %>% 
+        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Activos,
+                  name="Total Activos",visible=F,line=list(color="#F94331")) }
+
+dep_acum%>%  
+   layout(
+    updatemenus=botones_4)
+
+```
+
+## Nuevos casos departamentales
+
+```{r fig.width=8,fig.height=5,echo=FALSE}
+
 t=list(T,T,T,T,T,T,T,T,T)
 f=list(F,F,F,F,F,F,F,F,F)
-c1=c(t,f,f)
+c1=c(F,t,f,f)
 d1=c(f,F,t,f)
 r1=c(f,f,F,t)
 
-botones_1=list(list(
+botones_1=list(list(type='buttons',direction = "right",xanchor = 'right',yanchor = "top",
+  pad = list('r'= 45, 't'= 25),x = 0.5,y = 1.25,
                 buttons=list(list(label="Confirmados",methos="update",args=list("visible",c1)),
                              list(label="Decesos",methos="update",args=list("visible",d1)),
                              list(label="Recuperados",methos="update",args=list("visible",r1)))
 ))
 
-colores=c("E1380B","#177DE9","#51C218","#B518C2","#00B6DF","#10C0A5","#8A2800","#099162","#FC2020")
+colores=c("#0D651A","#0990BF","#E74F37","#FF4F40","#BF628D","#66BF62","#C4794F","#2BAD0E","#626DBF")
 
 nuevos=plot_ly(type = "scatter",mode="lines")
 for(i in 1:9){
@@ -75,8 +234,7 @@ for(i in 1:9){
                   name=etiqueta_dep[i],visible=F,line=list(color=colores[i]))}
 
 nuevos%>%  
-   layout(
-    updatemenus=botones_1)
+   layout(updatemenus=botones_1)
 
 #bn_nc=xts(x=bn[,3:5],order.by = bn$fecha)
 #dygraph(bn_nc,xlab = "Fecha",ylab = "Número de casos",main="Beni") %>% 
@@ -87,14 +245,15 @@ nuevos%>%
 ```
 
 
-## Casos Acumulados
+## Casos acumulados departamentales
 
-```{r fig.width=10,fig.height=5,echo=FALSE}
-c2=c(t,f,f,f)
+```{r fig.width=8,fig.height=5,echo=FALSE}
+c2=c(F,t,f,f,f)
 d2=c(f,F,t,f,f)
 r2=c(f,f,F,t,f)
 a2=c(f,f,f,F,t)
-botones_2=list(list(
+botones_2=list(list(type='buttons',direction = "right",xanchor = 'right',yanchor = "top",
+  pad = list('r'= -160, 't'= 25),x = 0.5,y = 1.25,
                 buttons=list(list(label="Total Confirmados",methos="update",args=list("visible",c2)),
                              list(label="Total Decesos",methos="update",args=list("visible",d2)),
                              list(label="Total Recuperados",methos="update",args=list("visible",r2)),
@@ -126,114 +285,4 @@ acumulados%>%
 
 ```
 
-
-# Departamentos por Tipo de Casos
-
-## Nuevos Casos
-
-```{r fig.width=10,fig.height=5,echo=FALSE}
-t3=c(T,T,T)
-f3=c(F,F,F)
-bn3=c(t3,f3,f3,f3,f3,f3,f3,f3,f3)
-cb3=c(f3,F ,t3,f3,f3,f3,f3,f3,f3,f3)
-ch3=c(f3,f3,F ,t3,f3,f3,f3,f3,f3,f3)
-lp3=c(f3,f3,f3,F ,t3,f3,f3,f3,f3,f3)
-or3=c(f3,f3,f3,f3,F ,t3,f3,f3,f3,f3)
-pn3=c(f3,f3,f3,f3,f3,F ,t3,f3,f3,f3)
-pt3=c(f3,f3,f3,f3,f3,f3,F ,t3,f3,f3)
-sc3=c(f3,f3,f3,f3,f3,f3,f3,F ,t3,f3)
-tj3=c(f3,f3,f3,f3,f3,f3,f3,f3,F ,t3)
-
-botones_3=list(list(
-                buttons=list(list(label="Beni",methos="update",args=list("visible",bn3)),
-                             list(label="Cochabamaba",methos="update",args=list("visible",cb3)),
-                             list(label="Chuquisaca",methos="update",args=list("visible",ch3)),
-                             list(label="La Paz",methos="update",args=list("visible",lp3)),
-                             list(label="Oruro",methos="update",args=list("visible",or3)),
-                             list(label="Pando",methos="update",args=list("visible",pn3)),
-                             list(label="Potosí",methos="update",args=list("visible",pt3)),
-                             list(label="Santa Cruz",methos="update",args=list("visible",sc3)),
-                             list(label="Tarija",methos="update",args=list("visible",tj3)))
-))
-
-dep=plot_ly(type = "scatter",mode="lines") %>% 
-  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Confirmados,
-            name="Confirmados",visible=T,line=list(color="#004E93")) %>% 
-  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Decesos,
-            name="Decesos",visible=T,line=list(color="#0A042A")) %>% 
-  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Recuperados ,
-            name="Recuperados",visible=T,line=list(color="#51C218"))
-
-for(i in 2:9){
-      dep=dep %>% 
-        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Confirmados,
-                  name="Confirmados",visible=F,line=list(color="#004E93")) %>% 
-        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Decesos,
-                  name="Decesos",visible=F,line=list(color="#0A042A")) %>% 
-        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Recuperados,
-                  name="Recuperados",visible=F,line=list(color="#51C218"))}
-
-dep%>%  
-   layout(
-    updatemenus=botones_3)
-
-```
-
-
-## Casos Acumulados
-
-
-```{r fig.width=10,fig.height=5,echo=FALSE}
-t4=c(T,T,T,T)
-f4=c(F,F,F,F)
-
-bn4=c(t4,f4,f4,f4,f4,f4,f4,f4,f4)
-cb4=c(f4,F ,t4,f4,f4,f4,f4,f4,f4,f4)
-ch4=c(f4,f4,F ,t4,f4,f4,f4,f4,f4,f4)
-lp4=c(f4,f4,f4,F ,t4,f4,f4,f4,f4,f4)
-or4=c(f4,f4,f4,f4,F ,t4,f4,f4,f4,f4)
-pn4=c(f4,f4,f4,f4,f4,F ,t4,f4,f4,f4)
-pt4=c(f4,f4,f4,f4,f4,f4,F ,t4,f4,f4)
-sc4=c(f4,f4,f4,f4,f4,f4,f4,F ,t4,f4)
-tj4=c(f4,f4,f4,f4,f4,f4,f4,f4,F ,t4)
-
-botones_4=list(list(
-                buttons=list(list(label="Beni",methos="update",args=list("visible",bn4)),
-                             list(label="Cochabamaba",methos="update",args=list("visible",cb4)),
-                             list(label="Chuquisaca",methos="update",args=list("visible",ch4)),
-                             list(label="La Paz",methos="update",args=list("visible",lp4)),
-                             list(label="Oruro",methos="update",args=list("visible",or4)),
-                             list(label="Pando",methos="update",args=list("visible",pn4)),
-                             list(label="Potosí",methos="update",args=list("visible",pt4)),
-                             list(label="Santa Cruz",methos="update",args=list("visible",sc4)),
-                             list(label="Tarija",methos="update",args=list("visible",tj4)))
-))
-
-dep_acum=plot_ly(type = "scatter",mode="lines") %>% 
-  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Total_Confirmados,
-            name="Total Confirmados",visible=T,line=list(color="#004E93")) %>% 
-  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Total_Decesos,
-            name="Total Decesos",visible=T,line=list(color="#0A042A")) %>% 
-  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Total_Recuperados,
-            name="Total Recuperados",visible=T,line=list(color="#51C218")) %>% 
-  add_trace(x=bd[[etiqueta_dep[1]]]$Fecha,y=bd[[etiqueta_dep[1]]]$Total_Activos,
-            name="Total Activos",visible=T,line=list(color="#FC2020")) 
-
-
-for(i in 2:9){
-      dep_acum=dep_acum %>% 
-        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Confirmados,
-                  name="Total Confirmados",visible=F,line=list(color="#004E93")) %>% 
-        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Decesos,
-                  name="Total Decesos",visible=F,line=list(color="#0A042A")) %>% 
-        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Recuperados,
-                  name="Total Recuperados",visible=F,line=list(color="#51C218")) %>% 
-        add_trace(x=bd[[etiqueta_dep[i]]]$Fecha,y=bd[[etiqueta_dep[i]]]$Total_Activos,
-                  name="Total Activos",visible=F,line=list(color="#FC2020")) }
-
-dep_acum%>%  
-   layout(
-    updatemenus=botones_4)
-
-```
-
+Los datos utilizados son de **<https://www.boliviasegura.gob.bo>**.
