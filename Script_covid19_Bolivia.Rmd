@@ -2,16 +2,23 @@
 title: "Covid-19 en Bolivia"
 author: Bladimir Morales Torrez
 date: "`r format(Sys.time(), 'Actualizado a %d %B, %Y')`"
-output: html_notebook
+output: 
+  html_notebook:
+    number_sections: true
+    theme: flatly
+    toc: true
+    toc_float: true
+    fig_retina: 2
+    df_print: paged
 ---
+<style>
+body {
+text-align: justify}
+</style>
 
-Se muestra en este reporte el registro diario de:
+La información que se presenta a través de gráficos dinámicos y datos estadísticos, permite conocer la evolución del COVID-19 desde una perspectiva histórica y actual de los contagios a nivel Bolivia y Departamento, contrastado con el número de Casos Nuevos,  Casos Acumulados, por Tipo de Casos (Confirmados, Recuperados, Decesos y Activos).
+La pulsación en los botones y leyendas de los gráficos dinámicos permite generar información de acuerdo al requerimiento del usuario. 
 
-* Casos nuevos y acumulados de Bolivia.
-* Casos nuevos y acumulados de los Departamentos por tipo de caso.
-* Casos nuevos y acumulados de los tipos de Casos por Departamento.
-
-En los gráficos dinámicos se puede pulsar en los botones y en las leyendas de acuerdo a la información que se requiera.
 
 ```{r base_datos, echo=FALSE}
 #pq=c("knitr","readxl","dplyr","purrr","glue","plotly")
@@ -36,6 +43,7 @@ for(i in 1:9){
          Total_Activos= Activos %>%  accumulate(`+`))
  bd[i]=list(bd_dep)}
 
+bd_dep=bd
 Bolivia=data.frame(as.Date(bd[[9]]$Fecha)) %>% 
   mutate(dep="Bolivia",Confirmados=0,Decesos=0,Recuperados=0,Activos=0,
          Total_Confirmados=0,Total_Decesos=0,Total_Recuperados=0,Total_Activos=0) %>% 
@@ -58,10 +66,11 @@ etiqueta_dep=c("Beni","Cochabamba","Chuquisaca","La Paz","Oruro","Pando","Potos�
 names(bd)=etiqueta_dep
 ```
 
-# Bolivia
+# Bolivia {.tabset}
+
+## Gráfico de tipo de casos
 
 ```{r fig.width=8,fig.height=5,echo=FALSE}
-
 plot_ly(type = "scatter",mode='lines') %>% 
   add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Confirmados,
             name="Confirmados",visible=T,line=list(color="#FA975A")) %>% 
@@ -78,8 +87,9 @@ plot_ly(type = "scatter",mode='lines') %>%
             name="Total Recuperados",visible=F,line=list(color="#4EF151")) %>% 
   add_trace(x=bd[[etiqueta_dep[10]]]$Fecha,y=bd[[etiqueta_dep[10]]]$Total_Activos,
             name="Total Activos",visible=F,line=list(color="#F94331")) %>% 
-  layout(updatemenus=list(list(type='buttons',direction = "right",xanchor = 'right',yanchor = "top",
-  pad = list('r'= 80, 't'= 25),x = 0.5,y = 1.25,
+  layout(title="BOLIVIA: TIPO DE CASOS", 
+         updatemenus=list(list(type='buttons',direction = "right",xanchor = 'left',
+  pad = list('r'= 0, 't'= 60),x = 0,y = 1.3,
   buttons=list(list(label="Nuevos Casos",methos="relayout",args=list("visible",c(F,T,T,T,F,F,F,F))),
                              list(label="Casos Acumulados",methos="update",args=list("visible",c(F,F,F,F,T,T,T,T))))
           ))
@@ -87,10 +97,31 @@ plot_ly(type = "scatter",mode='lines') %>%
 
 ```
 
+## Tabla de frecuencias
 
-# Departamentos
+```{r tabla_bolivia,echo=FALSE}
+tabla_bolivia=bd[["Bolivia"]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_bolivia=list(tabla_bolivia)
 
-## Tipo de casos nuevos
+tabla_bolivia=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_bolivia[[1]]$Confirmados,tabla_bolivia[[1]]$Decesos,tabla_bolivia[[1]]$Recuperados,tabla_bolivia[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_bolivia[[1]]$Decesos/tabla_bolivia[[1]]$Confirmados*100,1),
+                                round(tabla_bolivia[[1]]$Recuperados/tabla_bolivia[[1]]$Confirmados*100,1),
+                                round(tabla_bolivia[[1]]$Activos/tabla_bolivia[[1]]$Confirmados*100,1)))
+data.frame(tabla_bolivia)
+```
+
+
+# Departamentos 
+
+## Gráficos Dinámicos {.tabset}
+
+### Casos nuevos
 
 ```{r fig.width=8,fig.height=5,echo=FALSE}
 t3=c(T,T,T)
@@ -105,8 +136,8 @@ pt3=c(f3,f3,f3,f3,f3,f3,F ,t3,f3,f3)
 sc3=c(f3,f3,f3,f3,f3,f3,f3,F ,t3,f3)
 tj3=c(f3,f3,f3,f3,f3,f3,f3,f3,F ,t3)
 
-botones_3=list(list(type='buttons',direction = "right",xanchor = 'center',yanchor = "top",
-  pad = list('r'= 0, 't'= 25),x = 0.5,y = 1.25,
+botones_3=list(list(type='buttons',direction = "right",xanchor = 'left',
+  pad = list('r'= 0, 't'= 60),x = 0,y = 1.3,
                 buttons=list(list(label="Beni",methos="update",args=list("visible",bn3)),
                              list(label="Cochabamba",methos="update",args=list("visible",cb3)),
                              list(label="Chuquisaca",methos="update",args=list("visible",ch3)),
@@ -136,13 +167,13 @@ for(i in 2:9){
                   name="Recuperados",visible=F,line=list(color="#4EF151"))}
 
 dep%>%  
-   layout(
+   layout(title="Bolivia: Departamentos por Casos Nuevos",
     updatemenus=botones_3)
 
 ```
 
 
-## Tipo de casos acumulados
+### Casos acumulados
 
 
 ```{r fig.width=8,fig.height=5,echo=FALSE}
@@ -159,8 +190,8 @@ pt4=c(f4,f4,f4,f4,f4,f4,F ,t4,f4,f4)
 sc4=c(f4,f4,f4,f4,f4,f4,f4,F ,t4,f4)
 tj4=c(f4,f4,f4,f4,f4,f4,f4,f4,F ,t4)
 
-botones_4=list(list(type='buttons',direction = "right",xanchor = 'center',yanchor = "top",
-  pad = list('r'= -20, 't'= 25),x = 0.5,y = 1.25,
+botones_4=list(list(type='buttons',direction = "right",xanchor = 'left',
+  pad = list('r'= 0, 't'= 60),x = 0,y = 1.3,
                 buttons=list(list(label="Beni",methos="update",args=list("visible",bn4)),
                              list(label="Cochabamba",methos="update",args=list("visible",cb4)),
                              list(label="Chuquisaca",methos="update",args=list("visible",ch4)),
@@ -195,12 +226,12 @@ for(i in 2:9){
                   name="Total Activos",visible=F,line=list(color="#F94331")) }
 
 dep_acum%>%  
-   layout(
+   layout(title="Bolivia: Departamentos por Casos Acumulados",
     updatemenus=botones_4)
 
 ```
 
-## Nuevos casos departamentales
+### Tipo de casos nuevos
 
 ```{r fig.width=8,fig.height=5,echo=FALSE}
 
@@ -210,8 +241,8 @@ c1=c(F,t,f,f)
 d1=c(f,F,t,f)
 r1=c(f,f,F,t)
 
-botones_1=list(list(type='buttons',direction = "right",xanchor = 'right',yanchor = "top",
-  pad = list('r'= 45, 't'= 25),x = 0.5,y = 1.25,
+botones_1=list(list(type='buttons',direction = "right",xanchor = 'left',
+  pad = list('r'= 0, 't'= 60),x = 0,y = 1.3,
                 buttons=list(list(label="Confirmados",methos="update",args=list("visible",c1)),
                              list(label="Decesos",methos="update",args=list("visible",d1)),
                              list(label="Recuperados",methos="update",args=list("visible",r1)))
@@ -234,7 +265,7 @@ for(i in 1:9){
                   name=etiqueta_dep[i],visible=F,line=list(color=colores[i]))}
 
 nuevos%>%  
-   layout(updatemenus=botones_1)
+   layout(title="BOLIVIA: TIPO DE CASOS NUEVOS POR DEPARTAMENTO",updatemenus=botones_1)
 
 #bn_nc=xts(x=bn[,3:5],order.by = bn$fecha)
 #dygraph(bn_nc,xlab = "Fecha",ylab = "Número de casos",main="Beni") %>% 
@@ -245,15 +276,15 @@ nuevos%>%
 ```
 
 
-## Casos acumulados departamentales
+### Tipo de casos acumulados
 
 ```{r fig.width=8,fig.height=5,echo=FALSE}
 c2=c(F,t,f,f,f)
 d2=c(f,F,t,f,f)
 r2=c(f,f,F,t,f)
 a2=c(f,f,f,F,t)
-botones_2=list(list(type='buttons',direction = "right",xanchor = 'right',yanchor = "top",
-  pad = list('r'= -160, 't'= 25),x = 0.5,y = 1.25,
+botones_2=list(list(type='buttons',direction = "right",xanchor = 'left',
+  pad = list('r'= 0, 't'= 60),x = 0,y = 1.3,
                 buttons=list(list(label="Total Confirmados",methos="update",args=list("visible",c2)),
                              list(label="Total Decesos",methos="update",args=list("visible",d2)),
                              list(label="Total Recuperados",methos="update",args=list("visible",r2)),
@@ -279,10 +310,191 @@ for(i in 1:9){
                   name=etiqueta_dep[i],visible=F,line=list(color=colores[i]))}
 
 acumulados%>%  
-   layout(
+   layout(title="BOLIVIA: TIPO DE CASOS ACUMULADOS POR DEPARTAMENTO",
     updatemenus=botones_2)
 
 
 ```
 
-Los datos utilizados son de **<https://boliviasegura.gob.bo>**.
+## Tablas de Frecuencia {.tabset}
+
+### Beni {-}
+
+```{r tabla_beni,echo=FALSE}
+tabla_beni=bd_dep[[1]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_beni=list(tabla_beni)
+
+tabla_beni=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_beni[[1]]$Confirmados,tabla_beni[[1]]$Decesos,tabla_beni[[1]]$Recuperados,tabla_beni[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_beni[[1]]$Decesos/tabla_beni[[1]]$Confirmados*100,1),
+                                round(tabla_beni[[1]]$Recuperados/tabla_beni[[1]]$Confirmados*100,1),
+                                round(tabla_beni[[1]]$Activos/tabla_beni[[1]]$Confirmados*100,1)))
+data.frame(tabla_beni)
+
+```
+
+### Cochabamba {-}
+
+```{r tabla_cochabamba,echo=FALSE}
+tabla_cochabamba=bd_dep[[2]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_cochabamba=list(tabla_cochabamba)
+
+tabla_cochabamba=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_cochabamba[[1]]$Confirmados,tabla_cochabamba[[1]]$Decesos,tabla_cochabamba[[1]]$Recuperados,tabla_cochabamba[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_cochabamba[[1]]$Decesos/tabla_cochabamba[[1]]$Confirmados*100,1),
+                                round(tabla_cochabamba[[1]]$Recuperados/tabla_cochabamba[[1]]$Confirmados*100,1),
+                                round(tabla_cochabamba[[1]]$Activos/tabla_cochabamba[[1]]$Confirmados*100,1)))
+data.frame(tabla_cochabamba)
+
+```
+### Chuquisaca {-}
+
+```{r tabla_chuquisaca,echo=FALSE}
+tabla_chuquisaca=bd_dep[[3]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_chuquisaca=list(tabla_chuquisaca)
+
+tabla_chuquisaca=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_chuquisaca[[1]]$Confirmados,tabla_chuquisaca[[1]]$Decesos,tabla_chuquisaca[[1]]$Recuperados,tabla_chuquisaca[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_chuquisaca[[1]]$Decesos/tabla_chuquisaca[[1]]$Confirmados*100,1),
+                                round(tabla_chuquisaca[[1]]$Recuperados/tabla_chuquisaca[[1]]$Confirmados*100,1),
+                                round(tabla_chuquisaca[[1]]$Activos/tabla_chuquisaca[[1]]$Confirmados*100,1)))
+data.frame(tabla_chuquisaca)
+
+```
+### La Paz {-}
+
+```{r tabla_lapaz,echo=FALSE}
+tabla_lapaz=bd_dep[[4]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_lapaz=list(tabla_lapaz)
+
+tabla_lapaz=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_lapaz[[1]]$Confirmados,tabla_lapaz[[1]]$Decesos,tabla_lapaz[[1]]$Recuperados,tabla_lapaz[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_lapaz[[1]]$Decesos/tabla_lapaz[[1]]$Confirmados*100,1),
+                                round(tabla_lapaz[[1]]$Recuperados/tabla_lapaz[[1]]$Confirmados*100,1),
+                                round(tabla_lapaz[[1]]$Activos/tabla_lapaz[[1]]$Confirmados*100,1)))
+data.frame(tabla_lapaz)
+
+```
+
+### Oruro {-}
+
+```{r tabla_oruro,echo=FALSE}
+tabla_oruro=bd_dep[[5]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_oruro=list(tabla_oruro)
+
+tabla_oruro=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_oruro[[1]]$Confirmados,tabla_oruro[[1]]$Decesos,tabla_oruro[[1]]$Recuperados,tabla_oruro[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_oruro[[1]]$Decesos/tabla_oruro[[1]]$Confirmados*100,1),
+                                round(tabla_oruro[[1]]$Recuperados/tabla_oruro[[1]]$Confirmados*100,1),
+                                round(tabla_oruro[[1]]$Activos/tabla_oruro[[1]]$Confirmados*100,1)))
+data.frame(tabla_oruro)
+
+```
+
+### Pando {-}
+
+```{r tabla_pando,echo=FALSE}
+tabla_pando=bd_dep[[6]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_pando=list(tabla_pando)
+
+tabla_pando=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_pando[[1]]$Confirmados,tabla_pando[[1]]$Decesos,tabla_pando[[1]]$Recuperados,tabla_pando[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_pando[[1]]$Decesos/tabla_pando[[1]]$Confirmados*100,1),
+                                round(tabla_pando[[1]]$Recuperados/tabla_pando[[1]]$Confirmados*100,1),
+                                round(tabla_pando[[1]]$Activos/tabla_pando[[1]]$Confirmados*100,1)))
+data.frame(tabla_pando)
+
+```
+
+
+### Potosí {-}
+
+```{r tabla_potosi,echo=FALSE}
+tabla_potosi=bd_dep[[7]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_potosi=list(tabla_potosi)
+
+tabla_potosi=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_potosi[[1]]$Confirmados,tabla_potosi[[1]]$Decesos,tabla_potosi[[1]]$Recuperados,tabla_potosi[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_potosi[[1]]$Decesos/tabla_potosi[[1]]$Confirmados*100,1),
+                                round(tabla_potosi[[1]]$Recuperados/tabla_potosi[[1]]$Confirmados*100,1),
+                                round(tabla_potosi[[1]]$Activos/tabla_potosi[[1]]$Confirmados*100,1)))
+data.frame(tabla_potosi)
+
+```
+
+### Santa Cruz {-}
+
+```{r tabla_santacruz,echo=FALSE}
+tabla_santacruz=bd_dep[[8]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_santacruz=list(tabla_santacruz)
+
+tabla_santacruz=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_santacruz[[1]]$Confirmados,tabla_santacruz[[1]]$Decesos,tabla_santacruz[[1]]$Recuperados,tabla_santacruz[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_santacruz[[1]]$Decesos/tabla_santacruz[[1]]$Confirmados*100,1),
+                                round(tabla_santacruz[[1]]$Recuperados/tabla_santacruz[[1]]$Confirmados*100,1),
+                                round(tabla_santacruz[[1]]$Activos/tabla_santacruz[[1]]$Confirmados*100,1)))
+data.frame(tabla_santacruz)
+
+```
+
+### Tarija {-}
+
+```{r tabla_tarija,echo=FALSE}
+tabla_tarija=bd_dep[[9]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_tarija=list(tabla_tarija)
+
+tabla_tarija=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Nro_casos=c(tabla_tarija[[1]]$Confirmados,tabla_tarija[[1]]$Decesos,tabla_tarija[[1]]$Recuperados,tabla_tarija[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_tarija[[1]]$Decesos/tabla_tarija[[1]]$Confirmados*100,1),
+                                round(tabla_tarija[[1]]$Recuperados/tabla_tarija[[1]]$Confirmados*100,1),
+                                round(tabla_tarija[[1]]$Activos/tabla_tarija[[1]]$Confirmados*100,1)))
+data.frame(tabla_tarija)
+
+```
+
+Los datos utilizados son de **<boliviasegura.gob.bo>**.
