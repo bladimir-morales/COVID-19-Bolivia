@@ -1,0 +1,951 @@
+---
+title: "Covid-19 en Bolivia"
+author: "Bladimir Morales Torrez"
+date: "`r format(Sys.time(), 'Actualizado a %d %B, %Y')`"
+output:
+  html_document:
+    number_sections: true
+    theme: darkly
+    toc: true
+    toc_float: true
+    fig_retina: 2
+    df_print: paged
+---
+
+<style>
+body {
+text-align: justify}
+}
+</style>
+
+
+La información que se presenta a través de gráficos dinámicos y datos estadísticos, permite conocer la evolución del COVID-19 desde una perspectiva histórica y actual de los contagios a nivel Bolivia y Departamento, contrastado con el número de Casos Nuevos,  Casos Acumulados, por Tipo de Casos (Confirmados, Recuperados, Decesos y Activos).
+
+Tomar en cuenta:
+
+$$ Activos=confirmados-decesos-recuperados$$
+
+La pulsación en los botones y leyendas de los gráficos dinámicos permite generar información de acuerdo al requerimiento del usuario. 
+
+
+Los datos utilizados son de [Bolivia Segura](https://www.boliviasegura.gob.bo/).
+
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE,message = FALSE,error = FALSE,cols.min.print=3)
+library(readxl)
+library(dplyr)
+library(purrr)#accumulate
+library(highcharter)
+library(xts)
+
+```
+
+
+```{r base_datos}
+rm(list=ls())
+etiquetas_abr=c("bn","cb","ch","lp","or","pn","pt","sc","tj")
+bd=list()
+for(i in 1:9){
+ bd_dep=data.frame(read_xlsx("C:\\Users\\Bladimir\\Documents\\Proyectos\\COVID-19 Bolivia\\COVID-19-Bolivia\\BD\\BD_dpto.xlsx",sheet = etiquetas_abr[i] )) %>% 
+   mutate(Activos=Confirmados-Decesos-Recuperados,
+         Total_Confirmados= Confirmados %>%  accumulate(`+`),
+         Total_Decesos= Decesos %>%  accumulate(`+`),
+         Total_Recuperados= Recuperados %>%  accumulate(`+`),
+         Total_Activos= Activos %>%  accumulate(`+`))
+ bd[i]=list(bd_dep)}
+
+bd_dep=bd
+Bolivia=data.frame(as.Date(bd[[9]]$Fecha)) %>% 
+  mutate(dep="Bolivia",Confirmados=0,Decesos=0,Recuperados=0,Activos=0,
+         Total_Confirmados=0,Total_Decesos=0,Total_Recuperados=0,Total_Activos=0) %>% 
+  select(Fecha="as.Date.bd..9...Fecha.",dep:Total_Activos)
+
+for (i in 1:9) {
+  Bolivia$Confirmados=Bolivia$Confirmados+bd[[i]]$Confirmados
+  Bolivia$Decesos=Bolivia$Decesos+bd[[i]]$Decesos
+  Bolivia$Recuperados=Bolivia$Recuperados+bd[[i]]$Recuperados
+  Bolivia$Activos=Bolivia$Activos+bd[[i]]$Activos
+  Bolivia$Total_Confirmados=Bolivia$Total_Confirmados+bd[[i]]$Total_Confirmados
+  Bolivia$Total_Decesos=Bolivia$Total_Decesos+bd[[i]]$Total_Decesos
+  Bolivia$Total_Recuperados=Bolivia$Total_Recuperados+bd[[i]]$Total_Recuperados
+  Bolivia$Total_Activos=Bolivia$Total_Activos+bd[[i]]$Total_Activos
+}
+
+bd[10]=list(Bolivia)
+
+etiqueta_dep=c("Beni","Cochabamba","Chuquisaca","La Paz","Oruro","Pando","Potosí","Santa Cruz","Tarija","Bolivia")
+names(bd)=etiqueta_dep
+```
+
+# Bolivia {.tabset}
+
+
+## Casos nuevos {-}
+
+```{r graf_bol_cn}
+serie_bol=xts(x=bd[["Bolivia"]][3:10] ,order.by=bd[["Bolivia"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_bol$Confirmados,name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_bol$Decesos,name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_bol$Recuperados,name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Bolivia: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_bol_cn}
+cn=bd[["Bolivia"]]$Confirmados[length(bd[["Bolivia"]]$Confirmados)]
+dn=bd[["Bolivia"]]$Decesos[length(bd[["Bolivia"]]$Decesos)]
+rn=bd[["Bolivia"]]$Recuperados[length(bd[["Bolivia"]]$Recuperados)]
+an=bd[["Bolivia"]]$Activos[length(bd[["Bolivia"]]$Activos)]
+
+cn_bol=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_bol)
+```
+
+## Casos Acumulados {-}
+
+```{r graf_bol_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_bol$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_bol$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_bol$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_bol$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Bolivia: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+
+```{r tabla_bol_ca}
+tabla_bolivia=bd[["Bolivia"]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_bolivia=list(tabla_bolivia)
+
+tabla_bolivia=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_bolivia[[1]]$Confirmados,tabla_bolivia[[1]]$Decesos,tabla_bolivia[[1]]$Recuperados,tabla_bolivia[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_bolivia[[1]]$Decesos/tabla_bolivia[[1]]$Confirmados*100,1),
+                                round(tabla_bolivia[[1]]$Recuperados/tabla_bolivia[[1]]$Confirmados*100,1),
+                                round(tabla_bolivia[[1]]$Activos/tabla_bolivia[[1]]$Confirmados*100,1)))
+data.frame(tabla_bolivia)
+```
+
+# Departamentos por tipo de caso {.tabset}
+
+## Beni (bn) {.tabset -}
+
+### Casos nuevos (bn){ -}
+
+```{r graf_bn_cn}
+serie_bn=xts(x=bd[["Beni"]][3:10] ,order.by = bd[["Beni"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_bn$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_bn$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_bn$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Beni: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_bn_cn}
+cn=bd[["Beni"]]$Confirmados[length(bd[["Beni"]]$Confirmados)]
+dn=bd[["Beni"]]$Decesos[length(bd[["Beni"]]$Decesos)]
+rn=bd[["Beni"]]$Recuperados[length(bd[["Beni"]]$Recuperados)]
+an=bd[["Beni"]]$Activos[length(bd[["Beni"]]$Activos)]
+
+cn_bn=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_bn)
+```
+
+### Casos acumulados (bn) { -}
+
+```{r graf_bn_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_bn$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_bn$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_bn$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_bn$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Beni: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+```{r tabla_bn_ca}
+tabla_beni=bd_dep[[1]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_beni=list(tabla_beni)
+
+tabla_beni=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_beni[[1]]$Confirmados,tabla_beni[[1]]$Decesos,tabla_beni[[1]]$Recuperados,tabla_beni[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_beni[[1]]$Decesos/tabla_beni[[1]]$Confirmados*100,1),
+                                round(tabla_beni[[1]]$Recuperados/tabla_beni[[1]]$Confirmados*100,1),
+                                round(tabla_beni[[1]]$Activos/tabla_beni[[1]]$Confirmados*100,1)))
+data.frame(tabla_beni)
+
+```
+## Cochabamba (cb) {.tabset -}
+
+### Casos nuevos (cb){ -}
+
+```{r graf_cb_cn}
+serie_cb=xts(x=bd[["Cochabamba"]][3:10] ,order.by = bd[["Cochabamba"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_cb$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_cb$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_cb$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Cochabamba: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_cb_cn}
+cn=bd[["Cochabamba"]]$Confirmados[length(bd[["Cochabamba"]]$Confirmados)]
+dn=bd[["Cochabamba"]]$Decesos[length(bd[["Cochabamba"]]$Decesos)]
+rn=bd[["Cochabamba"]]$Recuperados[length(bd[["Cochabamba"]]$Recuperados)]
+an=bd[["Cochabamba"]]$Activos[length(bd[["Cochabamba"]]$Activos)]
+
+cn_cb=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_cb)
+```
+
+### Casos acumulados (cb) { -}
+
+```{r graf_cb_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_cb$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_cb$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_cb$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_cb$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Cochabamba: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+```{r tabla_cb_ca}
+tabla_cochabamba=bd_dep[[2]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_cochabamba=list(tabla_cochabamba)
+
+tabla_cochabamba=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_cochabamba[[1]]$Confirmados,tabla_cochabamba[[1]]$Decesos,tabla_cochabamba[[1]]$Recuperados,tabla_cochabamba[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_cochabamba[[1]]$Decesos/tabla_cochabamba[[1]]$Confirmados*100,1),
+                                round(tabla_cochabamba[[1]]$Recuperados/tabla_cochabamba[[1]]$Confirmados*100,1),
+                                round(tabla_cochabamba[[1]]$Activos/tabla_cochabamba[[1]]$Confirmados*100,1)))
+data.frame(tabla_cochabamba)
+
+```
+## Chuquisaca (ch) {.tabset -}
+
+### Casos nuevos (ch){ -}
+
+
+```{r graf_ch_cn}
+serie_ch=xts(x=bd[["Chuquisaca"]][3:10] ,order.by = bd[["Chuquisaca"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_ch$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_ch$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_ch$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Chuquisaca: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+```{r tabla_ch_cn}
+cn=bd[["Chuquisaca"]]$Confirmados[length(bd[["Chuquisaca"]]$Confirmados)]
+dn=bd[["Chuquisaca"]]$Decesos[length(bd[["Chuquisaca"]]$Decesos)]
+rn=bd[["Chuquisaca"]]$Recuperados[length(bd[["Chuquisaca"]]$Recuperados)]
+an=bd[["Chuquisaca"]]$Activos[length(bd[["Chuquisaca"]]$Activos)]
+
+cn_ch=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_ch)
+```
+
+### Casos acumulados (ch) { -}
+
+```{r graf_ch_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_ch$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_ch$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_ch$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_ch$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Chuquisaca: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+
+```
+
+```{r tabla_ch_ca}
+tabla_chuquisaca=bd_dep[[3]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_chuquisaca=list(tabla_chuquisaca)
+
+tabla_chuquisaca=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_chuquisaca[[1]]$Confirmados,tabla_chuquisaca[[1]]$Decesos,tabla_chuquisaca[[1]]$Recuperados,tabla_chuquisaca[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_chuquisaca[[1]]$Decesos/tabla_chuquisaca[[1]]$Confirmados*100,1),
+                                round(tabla_chuquisaca[[1]]$Recuperados/tabla_chuquisaca[[1]]$Confirmados*100,1),
+                                round(tabla_chuquisaca[[1]]$Activos/tabla_chuquisaca[[1]]$Confirmados*100,1)))
+data.frame(tabla_chuquisaca)
+
+```
+
+## La Paz (lp) {.tabset -}
+
+### Casos nuevos (lp) { -}
+
+
+```{r graf_lp_cn}
+serie_lp=xts(x=bd[["La Paz"]][3:10] ,order.by = bd[["La Paz"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_lp$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_lp$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_lp$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="La Paz: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_lp_cn}
+cn=bd[["La Paz"]]$Confirmados[length(bd[["La Paz"]]$Confirmados)]
+dn=bd[["La Paz"]]$Decesos[length(bd[["La Paz"]]$Decesos)]
+rn=bd[["La Paz"]]$Recuperados[length(bd[["La Paz"]]$Recuperados)]
+an=bd[["La Paz"]]$Activos[length(bd[["La Paz"]]$Activos)]
+
+cn_lp=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_lp)
+```
+
+### Casos acumulados (lp) { -}
+
+```{r graf_lp_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_lp$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_lp$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_lp$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_lp$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="La Paz: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+```{r tabla_lp_ca}
+tabla_lapaz=bd_dep[[4]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_lapaz=list(tabla_lapaz)
+
+tabla_lapaz=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_lapaz[[1]]$Confirmados,tabla_lapaz[[1]]$Decesos,tabla_lapaz[[1]]$Recuperados,tabla_lapaz[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_lapaz[[1]]$Decesos/tabla_lapaz[[1]]$Confirmados*100,1),
+                                round(tabla_lapaz[[1]]$Recuperados/tabla_lapaz[[1]]$Confirmados*100,1),
+                                round(tabla_lapaz[[1]]$Activos/tabla_lapaz[[1]]$Confirmados*100,1)))
+data.frame(tabla_lapaz)
+
+```
+
+## Oruro (or) {.tabset -}
+
+### Casos nuevos (or) { -}
+
+
+```{r graf_or_cn}
+serie_or=xts(x=bd[["Oruro"]][3:10] ,order.by = bd[["Oruro"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_or$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_or$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_or$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Oruro: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_or_cn}
+cn=bd[["Oruro"]]$Confirmados[length(bd[["Oruro"]]$Confirmados)]
+dn=bd[["Oruro"]]$Decesos[length(bd[["Oruro"]]$Decesos)]
+rn=bd[["Oruro"]]$Recuperados[length(bd[["Oruro"]]$Recuperados)]
+an=bd[["Oruro"]]$Activos[length(bd[["Oruro"]]$Activos)]
+
+cn_or=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_or)
+```
+
+### Casos acumulados (or) { -}
+
+```{r graf_or_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_or$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_or$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_or$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_or$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Oruro: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+```{r tabla_or_ca}
+tabla_oruro=bd_dep[[5]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_oruro=list(tabla_oruro)
+
+tabla_oruro=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_oruro[[1]]$Confirmados,tabla_oruro[[1]]$Decesos,tabla_oruro[[1]]$Recuperados,tabla_oruro[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_oruro[[1]]$Decesos/tabla_oruro[[1]]$Confirmados*100,1),
+                                round(tabla_oruro[[1]]$Recuperados/tabla_oruro[[1]]$Confirmados*100,1),
+                                round(tabla_oruro[[1]]$Activos/tabla_oruro[[1]]$Confirmados*100,1)))
+data.frame(tabla_oruro)
+
+```
+
+
+## Pando (pn) {.tabset -}
+
+### Casos nuevos (pn){ -}
+
+
+```{r graf_pn_cn}
+serie_pn=xts(x=bd[["Pando"]][3:10] ,order.by = bd[["Pando"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_pn$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_pn$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_pn$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Pando: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_pn_cn}
+cn=bd[["Pando"]]$Confirmados[length(bd[["Pando"]]$Confirmados)]
+dn=bd[["Pando"]]$Decesos[length(bd[["Pando"]]$Decesos)]
+rn=bd[["Pando"]]$Recuperados[length(bd[["Pando"]]$Recuperados)]
+an=bd[["Pando"]]$Activos[length(bd[["Pando"]]$Activos)]
+
+cn_pn=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_pn)
+```
+
+### Casos acumulados (pn) { -}
+
+```{r graf_pn_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_pn$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_pn$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_pn$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_pn$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Pando: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+
+```{r tabla_pn_ca}
+tabla_pando=bd_dep[[6]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_pando=list(tabla_pando)
+
+tabla_pando=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_pando[[1]]$Confirmados,tabla_pando[[1]]$Decesos,tabla_pando[[1]]$Recuperados,tabla_pando[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_pando[[1]]$Decesos/tabla_pando[[1]]$Confirmados*100,1),
+                                round(tabla_pando[[1]]$Recuperados/tabla_pando[[1]]$Confirmados*100,1),
+                                round(tabla_pando[[1]]$Activos/tabla_pando[[1]]$Confirmados*100,1)))
+data.frame(tabla_pando)
+
+```
+
+## Potosí (pt) {.tabset -}
+
+### Casos nuevos (pt){ -}
+
+
+```{r graf_pt_cn}
+serie_pt=xts(x=bd[["Potosí"]][3:10] ,order.by = bd[["Potosí"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_pt$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_pt$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_pt$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Potosí: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_pt_cn}
+cn=bd[["Potosí"]]$Confirmados[length(bd[["Potosí"]]$Confirmados)]
+dn=bd[["Potosí"]]$Decesos[length(bd[["Potosí"]]$Decesos)]
+rn=bd[["Potosí"]]$Recuperados[length(bd[["Potosí"]]$Recuperados)]
+an=bd[["Potosí"]]$Activos[length(bd[["Potosí"]]$Activos)]
+
+cn_pt=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_pt)
+```
+
+### Casos acumulados (pt) { -}
+
+```{r graf_pt_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_pt$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_pt$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_pt$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_pt$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Potosí: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+```{r tabla_pt_ca}
+tabla_potosi=bd_dep[[7]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_potosi=list(tabla_potosi)
+
+tabla_potosi=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_potosi[[1]]$Confirmados,tabla_potosi[[1]]$Decesos,tabla_potosi[[1]]$Recuperados,tabla_potosi[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_potosi[[1]]$Decesos/tabla_potosi[[1]]$Confirmados*100,1),
+                                round(tabla_potosi[[1]]$Recuperados/tabla_potosi[[1]]$Confirmados*100,1),
+                                round(tabla_potosi[[1]]$Activos/tabla_potosi[[1]]$Confirmados*100,1)))
+data.frame(tabla_potosi)
+
+```
+
+## Santa Cruz (sc) {.tabset -}
+
+### Casos nuevos (sc){ -}
+
+
+```{r graf_sc_cn}
+serie_sc=xts(x=bd[["Santa Cruz"]][3:10] ,order.by = bd[["Santa Cruz"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_sc$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_sc$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_sc$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Santa Cruz: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_sc_cn}
+cn=bd[["Santa Cruz"]]$Confirmados[length(bd[["Santa Cruz"]]$Confirmados)]
+dn=bd[["Santa Cruz"]]$Decesos[length(bd[["Santa Cruz"]]$Decesos)]
+rn=bd[["Santa Cruz"]]$Recuperados[length(bd[["Santa Cruz"]]$Recuperados)]
+an=bd[["Santa Cruz"]]$Activos[length(bd[["Santa Cruz"]]$Activos)]
+
+cn_sc=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_sc)
+```
+
+### Casos acumulados (sc) { -}
+
+```{r graf_sc_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_sc$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_sc$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_sc$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_sc$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Santa cruz: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+```{r tabla_sc_ca}
+tabla_santacruz=bd_dep[[8]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_santacruz=list(tabla_santacruz)
+
+tabla_santacruz=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_santacruz[[1]]$Confirmados,tabla_santacruz[[1]]$Decesos,tabla_santacruz[[1]]$Recuperados,tabla_santacruz[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_santacruz[[1]]$Decesos/tabla_santacruz[[1]]$Confirmados*100,1),
+                                round(tabla_santacruz[[1]]$Recuperados/tabla_santacruz[[1]]$Confirmados*100,1),
+                                round(tabla_santacruz[[1]]$Activos/tabla_santacruz[[1]]$Confirmados*100,1)))
+data.frame(tabla_santacruz)
+
+```
+
+## Tarija (tj) {.tabset -}
+
+### Casos nuevos (tj){ -}
+
+
+```{r graf_tj_cn}
+serie_tj=xts(x=bd[["Tarija"]][3:10] ,order.by = bd[["Tarija"]]$Fecha)
+
+highchart(type = "stock") %>% 
+  hc_add_series(serie_tj$Confirmados , type = "line",name="Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_tj$Decesos , type = "line",name="Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_tj$Recuperados , type = "line",name="Recuperados",color='#4EF151') %>% 
+  hc_title(text="Tarija: Casos Nuevos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_tj_cn}
+cn=bd[["Tarija"]]$Confirmados[length(bd[["Tarija"]]$Confirmados)]
+dn=bd[["Tarija"]]$Decesos[length(bd[["Tarija"]]$Decesos)]
+rn=bd[["Tarija"]]$Recuperados[length(bd[["Tarija"]]$Recuperados)]
+an=bd[["Tarija"]]$Activos[length(bd[["Tarija"]]$Activos)]
+
+cn_tj=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+Casos_Nuevos=c(cn,dn,rn,an),
+Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+
+data.frame(cn_tj)
+```
+
+### Casos acumulados (tj) { -}
+
+```{r graf_tj_ca}
+highchart(type = "stock") %>% 
+  hc_add_series(serie_tj$Total_Confirmados , type = "line",name="Total Confirmados",color='#FCC119') %>% 
+  hc_add_series(serie_tj$Total_Decesos , type = "line",name="Total Decesos",color='#F306BC') %>% 
+  hc_add_series(serie_tj$Total_Recuperados , type = "line",name="Total Recuperados",color='#4EF151') %>% 
+  hc_add_series(serie_tj$Total_Activos , type = "line",name="Total Activos",color='#F14B34') %>% 
+  hc_title(text="Tarija: Casos Acumulados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+
+```{r tabla_tj_ca}
+tabla_tarija=bd_dep[[9]] %>% 
+  dplyr::summarise(Confirmados=sum(Confirmados),
+                   Decesos=sum(Decesos),
+                   Recuperados=sum(Recuperados),
+                   Activos=sum(Activos))
+tabla_tarija=list(tabla_tarija)
+
+tabla_tarija=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
+                   Casos_Acumulados=c(tabla_tarija[[1]]$Confirmados,tabla_tarija[[1]]$Decesos,tabla_tarija[[1]]$Recuperados,tabla_tarija[[1]]$Activos),
+                   Porcentaje=c(100,
+                                round(tabla_tarija[[1]]$Decesos/tabla_tarija[[1]]$Confirmados*100,1),
+                                round(tabla_tarija[[1]]$Recuperados/tabla_tarija[[1]]$Confirmados*100,1),
+                                round(tabla_tarija[[1]]$Activos/tabla_tarija[[1]]$Confirmados*100,1)))
+data.frame(tabla_tarija)
+
+```
+
+# Tipo de casos por departamento {.tabset}
+
+## Casos nuevos (cn) {.tabset -}
+
+### Confirmados (cn) {-}
+
+```{r graf_dep_conf_cn}
+graf_dep=rbind(bd_dep[[1]],bd_dep[[2]],bd_dep[[3]],bd_dep[[4]],bd_dep[[5]],bd_dep[[6]],bd_dep[[7]],bd_dep[[8]],bd_dep[[9]])
+graf_dep$Fecha=as.Date(graf_dep$Fecha)
+graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Confirmados,group=depto)) %>% 
+  hc_title(text="Departamentos: Casos Nuevos Confirmados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+
+```
+```{r tabla_dep_abs_cn1}
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+           Beni=cn_bn$Casos_Nuevos,
+           Cochabamba=cn_cb$Casos_Nuevos,
+           Chuquisaca=cn_ch$Casos_Nuevos,
+           La_Paz=cn_lp$Casos_Nuevos,
+           Oruro=cn_or$Casos_Nuevos,
+           Pando=cn_pn$Casos_Nuevos,
+           Potosí=cn_pt$Casos_Nuevos,
+           Santa_Cruz=cn_sc$Casos_Nuevos,
+           Tarija=cn_tj$Casos_Nuevos)
+```
+
+```{r tabla_dep_por_cn1}
+data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+           Pct_Beni=cn_bn$Porcentaje,
+           Pct_Cochabamba=cn_cb$Porcentaje,
+           Pct_Chuquisaca=cn_ch$Porcentaje,
+           Pct_La_Paz=cn_lp$Porcentaje,
+           Pct_Oruro=cn_or$Porcentaje,
+           Pct_Pando=cn_pn$Porcentaje,
+           Pct_Potosí=cn_pt$Porcentaje,
+           Pct_Santa_Cruz=cn_sc$Porcentaje,
+           Pct_Tarija=cn_tj$Porcentaje)
+```
+
+### Decesos (cn) {-}
+
+```{r graf_dep_dec_cn}
+graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Decesos,group=depto))%>% 
+  hc_title(text="Departamentos: Casos Nuevos Decesos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+```
+```{r tabla_dep_abs_cn2}
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+           Beni=cn_bn$Casos_Nuevos,
+           Cochabamba=cn_cb$Casos_Nuevos,
+           Chuquisaca=cn_ch$Casos_Nuevos,
+           La_Paz=cn_lp$Casos_Nuevos,
+           Oruro=cn_or$Casos_Nuevos,
+           Pando=cn_pn$Casos_Nuevos,
+           Potosí=cn_pt$Casos_Nuevos,
+           Santa_Cruz=cn_sc$Casos_Nuevos,
+           Tarija=cn_tj$Casos_Nuevos)
+```
+
+```{r tabla_dep_por_cn2}
+data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+           Pct_Beni=cn_bn$Porcentaje,
+           Pct_Cochabamba=cn_cb$Porcentaje,
+           Pct_Chuquisaca=cn_ch$Porcentaje,
+           Pct_La_Paz=cn_lp$Porcentaje,
+           Pct_Oruro=cn_or$Porcentaje,
+           Pct_Pando=cn_pn$Porcentaje,
+           Pct_Potosí=cn_pt$Porcentaje,
+           Pct_Santa_Cruz=cn_sc$Porcentaje,
+           Pct_Tarija=cn_tj$Porcentaje)
+```
+
+### Recuperados (cn) {-}
+
+```{r graf_dep_rec_cn}
+graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Recuperados,group=depto))%>% 
+  hc_title(text="Departamentos: Casos Nuevos Recuperados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+```{r tabla_dep_abs_cn3}
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+           Beni=cn_bn$Casos_Nuevos,
+           Cochabamba=cn_cb$Casos_Nuevos,
+           Chuquisaca=cn_ch$Casos_Nuevos,
+           La_Paz=cn_lp$Casos_Nuevos,
+           Oruro=cn_or$Casos_Nuevos,
+           Pando=cn_pn$Casos_Nuevos,
+           Potosí=cn_pt$Casos_Nuevos,
+           Santa_Cruz=cn_sc$Casos_Nuevos,
+           Tarija=cn_tj$Casos_Nuevos)
+```
+
+```{r tabla_dep_por_cn3}
+data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+           Pct_Beni=cn_bn$Porcentaje,
+           Pct_Cochabamba=cn_cb$Porcentaje,
+           Pct_Chuquisaca=cn_ch$Porcentaje,
+           Pct_La_Paz=cn_lp$Porcentaje,
+           Pct_Oruro=cn_or$Porcentaje,
+           Pct_Pando=cn_pn$Porcentaje,
+           Pct_Potosí=cn_pt$Porcentaje,
+           Pct_Santa_Cruz=cn_sc$Porcentaje,
+           Pct_Tarija=cn_tj$Porcentaje)
+```
+
+## Casos acumulados (ca) {.tabset -}
+
+### Confirmados (ca) {-}
+```{r graf_dep_conf_ca}
+graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Total_Confirmados,group=depto))%>% 
+  hc_title(text="Departamentos: Casos Acumulados Confirmados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_dep_abs_ca1}
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+           Beni=tabla_beni$Casos_Acumulados,
+           Cochabamba=tabla_cochabamba$Casos_Acumulados,
+           Chuquisaca=tabla_chuquisaca$Casos_Acumulados,
+           La_Paz=tabla_lapaz$Casos_Acumulados,
+           Oruro=tabla_oruro$Casos_Acumulados,
+           Pando=tabla_pando$Casos_Acumulados,
+           Potosí=tabla_potosi$Casos_Acumulados,
+           Santa_Cruz=tabla_santacruz$Casos_Acumulados,
+           Tarija=tabla_tarija$Casos_Acumulados)
+```
+
+```{r tabla_dep_por_ca1}
+data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+           Pct_Beni=tabla_beni$Porcentaje,
+           Pct_Cochabamba=tabla_cochabamba$Porcentaje,
+           Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
+           Pct_La_Paz=tabla_lapaz$Porcentaje,
+           Pct_Oruro=tabla_oruro$Porcentaje,
+           Pct_Pando=tabla_pando$Porcentaje,
+           Pct_Potosí=tabla_potosi$Porcentaje,
+           Pct_Santa_Cruz=tabla_santacruz$Porcentaje,
+           Pct_Tarija=tabla_tarija$Porcentaje)
+```
+
+
+### Decesos (ca) {-}
+
+```{r graf_dep_dec_ca}
+graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Total_Decesos,group=depto))%>% 
+  hc_title(text="Departamentos: Casos Acumulados Decesos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_dep_abs_ca2}
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+           Beni=tabla_beni$Casos_Acumulados,
+           Cochabamba=tabla_cochabamba$Casos_Acumulados,
+           Chuquisaca=tabla_chuquisaca$Casos_Acumulados,
+           La_Paz=tabla_lapaz$Casos_Acumulados,
+           Oruro=tabla_oruro$Casos_Acumulados,
+           Pando=tabla_pando$Casos_Acumulados,
+           Potosí=tabla_potosi$Casos_Acumulados,
+           Santa_Cruz=tabla_santacruz$Casos_Acumulados,
+           Tarija=tabla_tarija$Casos_Acumulados)
+```
+
+```{r tabla_dep_por_ca2}
+data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+           Pct_Beni=tabla_beni$Porcentaje,
+           Pct_Cochabamba=tabla_cochabamba$Porcentaje,
+           Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
+           Pct_La_Paz=tabla_lapaz$Porcentaje,
+           Pct_Oruro=tabla_oruro$Porcentaje,
+           Pct_Pando=tabla_pando$Porcentaje,
+           Pct_Potosí=tabla_potosi$Porcentaje,
+           Pct_Santa_Cruz=tabla_santacruz$Porcentaje,
+           Pct_Tarija=tabla_tarija$Porcentaje)
+```
+
+### Recuperados (ca) {-}
+
+```{r graf_dep_rec_ca}
+graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Total_Recuperados,group=depto))%>% 
+  hc_title(text="Departamentos: Casos Acumulados Recuperados") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_dep_abs_ca3}
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+           Beni=tabla_beni$Casos_Acumulados,
+           Cochabamba=tabla_cochabamba$Casos_Acumulados,
+           Chuquisaca=tabla_chuquisaca$Casos_Acumulados,
+           La_Paz=tabla_lapaz$Casos_Acumulados,
+           Oruro=tabla_oruro$Casos_Acumulados,
+           Pando=tabla_pando$Casos_Acumulados,
+           Potosí=tabla_potosi$Casos_Acumulados,
+           Santa_Cruz=tabla_santacruz$Casos_Acumulados,
+           Tarija=tabla_tarija$Casos_Acumulados)
+```
+
+```{r tabla_dep_por_ca3}
+data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+           Pct_Beni=tabla_beni$Porcentaje,
+           Pct_Cochabamba=tabla_cochabamba$Porcentaje,
+           Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
+           Pct_La_Paz=tabla_lapaz$Porcentaje,
+           Pct_Oruro=tabla_oruro$Porcentaje,
+           Pct_Pando=tabla_pando$Porcentaje,
+           Pct_Potosí=tabla_potosi$Porcentaje,
+           Pct_Santa_Cruz=tabla_santacruz$Porcentaje,
+           Pct_Tarija=tabla_tarija$Porcentaje)
+```
+
+### Activos (ca) {-}
+
+```{r graf_dep_act_ca}
+graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Total_Activos,group=depto)) %>% 
+  hc_title(text="Departamentos: Casos Acumulados Activos") %>% 
+  hc_add_theme(hc_theme_darkunica())
+
+```
+
+```{r tabla_dep_abs_ca4}
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+           Beni=tabla_beni$Casos_Acumulados,
+           Cochabamba=tabla_cochabamba$Casos_Acumulados,
+           Chuquisaca=tabla_chuquisaca$Casos_Acumulados,
+           La_Paz=tabla_lapaz$Casos_Acumulados,
+           Oruro=tabla_oruro$Casos_Acumulados,
+           Pando=tabla_pando$Casos_Acumulados,
+           Potosí=tabla_potosi$Casos_Acumulados,
+           Santa_Cruz=tabla_santacruz$Casos_Acumulados,
+           Tarija=tabla_tarija$Casos_Acumulados)
+```
+
+```{r tabla_dep_por_ca4}
+data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+           Pct_Beni=tabla_beni$Porcentaje,
+           Pct_Cochabamba=tabla_cochabamba$Porcentaje,
+           Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
+           Pct_La_Paz=tabla_lapaz$Porcentaje,
+           Pct_Oruro=tabla_oruro$Porcentaje,
+           Pct_Pando=tabla_pando$Porcentaje,
+           Pct_Potosí=tabla_potosi$Porcentaje,
+           Pct_Santa_Cruz=tabla_santacruz$Porcentaje,
+           Pct_Tarija=tabla_tarija$Porcentaje)
+```
+
