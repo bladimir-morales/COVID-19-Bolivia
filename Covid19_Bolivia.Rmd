@@ -93,15 +93,17 @@ highchart(type = "stock") %>%
 
 ```
 
+
 ```{r tabla_bol_cn}
 cn=bd[["Bolivia"]]$Confirmados[length(bd[["Bolivia"]]$Confirmados)]
 dn=bd[["Bolivia"]]$Decesos[length(bd[["Bolivia"]]$Decesos)]
 rn=bd[["Bolivia"]]$Recuperados[length(bd[["Bolivia"]]$Recuperados)]
-an=bd[["Bolivia"]]$Activos[length(bd[["Bolivia"]]$Activos)]
+#an=bd[["Bolivia"]]$Activos[length(bd[["Bolivia"]]$Activos)]
+sumcn=cn+dn+rn
 
-cn_bol=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+cn_bol=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 
 data.frame(cn_bol)
 ```
@@ -130,10 +132,9 @@ tabla_bolivia=list(tabla_bolivia)
 
 tabla_bolivia=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_bolivia[[1]]$Confirmados,tabla_bolivia[[1]]$Decesos,tabla_bolivia[[1]]$Recuperados,tabla_bolivia[[1]]$Activos),
-                   Porcentaje=c(100,
-                                round(tabla_bolivia[[1]]$Decesos/tabla_bolivia[[1]]$Confirmados*100,1),
-                                round(tabla_bolivia[[1]]$Recuperados/tabla_bolivia[[1]]$Confirmados*100,1),
-                                round(tabla_bolivia[[1]]$Activos/tabla_bolivia[[1]]$Confirmados*100,1)))
+                   Porcentaje=c(100,round(tabla_bolivia[[1]]$Decesos/tabla_bolivia[[1]]$Confirmados*100,1),
+                             round(tabla_bolivia[[1]]$Recuperados/tabla_bolivia[[1]]$Confirmados*100,1),
+                             round(tabla_bolivia[[1]]$Activos/tabla_bolivia[[1]]$Confirmados*100,1)))
 data.frame(tabla_bolivia)
 ```
 
@@ -159,11 +160,12 @@ highchart(type = "stock") %>%
 cn=bd[["Beni"]]$Confirmados[length(bd[["Beni"]]$Confirmados)]
 dn=bd[["Beni"]]$Decesos[length(bd[["Beni"]]$Decesos)]
 rn=bd[["Beni"]]$Recuperados[length(bd[["Beni"]]$Recuperados)]
-an=bd[["Beni"]]$Activos[length(bd[["Beni"]]$Activos)]
+#an=bd[["Beni"]]$Activos[length(bd[["Beni"]]$Activos)]
+sumcn=cn+dn+rn
 
-cn_bn=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+cn_bn=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 
 data.frame(cn_bn)
 ```
@@ -219,12 +221,12 @@ highchart(type = "stock") %>%
 cn=bd[["Cochabamba"]]$Confirmados[length(bd[["Cochabamba"]]$Confirmados)]
 dn=bd[["Cochabamba"]]$Decesos[length(bd[["Cochabamba"]]$Decesos)]
 rn=bd[["Cochabamba"]]$Recuperados[length(bd[["Cochabamba"]]$Recuperados)]
-an=bd[["Cochabamba"]]$Activos[length(bd[["Cochabamba"]]$Activos)]
+#an=bd[["Cochabamba"]]$Activos[length(bd[["Cochabamba"]]$Activos)]
+sumcn=cn+dn+rn
 
-cn_cb=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
-
+cn_cb=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 data.frame(cn_cb)
 ```
 
@@ -259,6 +261,7 @@ tabla_cochabamba=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
 data.frame(tabla_cochabamba)
 
 ```
+
 ## Chuquisaca (ch) {.tabset -}
 
 ### Casos nuevos (ch){ -}
@@ -281,11 +284,13 @@ highchart(type = "stock") %>%
 cn=bd[["Chuquisaca"]]$Confirmados[length(bd[["Chuquisaca"]]$Confirmados)]
 dn=bd[["Chuquisaca"]]$Decesos[length(bd[["Chuquisaca"]]$Decesos)]
 rn=bd[["Chuquisaca"]]$Recuperados[length(bd[["Chuquisaca"]]$Recuperados)]
-an=bd[["Chuquisaca"]]$Activos[length(bd[["Chuquisaca"]]$Activos)]
+#an=bd[["Chuquisaca"]]$Activos[length(bd[["Chuquisaca"]]$Activos)]
 
-cn_ch=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+sumcn=cn+dn+rn
+
+cn_ch=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 
 data.frame(cn_ch)
 ```
@@ -344,11 +349,13 @@ highchart(type = "stock") %>%
 cn=bd[["La Paz"]]$Confirmados[length(bd[["La Paz"]]$Confirmados)]
 dn=bd[["La Paz"]]$Decesos[length(bd[["La Paz"]]$Decesos)]
 rn=bd[["La Paz"]]$Recuperados[length(bd[["La Paz"]]$Recuperados)]
-an=bd[["La Paz"]]$Activos[length(bd[["La Paz"]]$Activos)]
+#an=bd[["La Paz"]]$Activos[length(bd[["La Paz"]]$Activos)]
 
-cn_lp=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+sumcn=cn+dn+rn
+
+cn_lp=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 
 data.frame(cn_lp)
 ```
@@ -406,12 +413,12 @@ highchart(type = "stock") %>%
 cn=bd[["Oruro"]]$Confirmados[length(bd[["Oruro"]]$Confirmados)]
 dn=bd[["Oruro"]]$Decesos[length(bd[["Oruro"]]$Decesos)]
 rn=bd[["Oruro"]]$Recuperados[length(bd[["Oruro"]]$Recuperados)]
-an=bd[["Oruro"]]$Activos[length(bd[["Oruro"]]$Activos)]
+#an=bd[["Oruro"]]$Activos[length(bd[["Oruro"]]$Activos)]
+sumcn=cn+dn+rn
 
-cn_or=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
-
+cn_or=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 data.frame(cn_or)
 ```
 
@@ -469,12 +476,12 @@ highchart(type = "stock") %>%
 cn=bd[["Pando"]]$Confirmados[length(bd[["Pando"]]$Confirmados)]
 dn=bd[["Pando"]]$Decesos[length(bd[["Pando"]]$Decesos)]
 rn=bd[["Pando"]]$Recuperados[length(bd[["Pando"]]$Recuperados)]
-an=bd[["Pando"]]$Activos[length(bd[["Pando"]]$Activos)]
+#an=bd[["Pando"]]$Activos[length(bd[["Pando"]]$Activos)]
+sumcn=cn+dn+rn
 
-cn_pn=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
-
+cn_pn=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 data.frame(cn_pn)
 ```
 
@@ -532,11 +539,12 @@ highchart(type = "stock") %>%
 cn=bd[["Potosí"]]$Confirmados[length(bd[["Potosí"]]$Confirmados)]
 dn=bd[["Potosí"]]$Decesos[length(bd[["Potosí"]]$Decesos)]
 rn=bd[["Potosí"]]$Recuperados[length(bd[["Potosí"]]$Recuperados)]
-an=bd[["Potosí"]]$Activos[length(bd[["Potosí"]]$Activos)]
+#an=bd[["Potosí"]]$Activos[length(bd[["Potosí"]]$Activos)]
+sumcn=cn+dn+rn
 
-cn_pt=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+cn_pt=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 
 data.frame(cn_pt)
 ```
@@ -594,11 +602,12 @@ highchart(type = "stock") %>%
 cn=bd[["Santa Cruz"]]$Confirmados[length(bd[["Santa Cruz"]]$Confirmados)]
 dn=bd[["Santa Cruz"]]$Decesos[length(bd[["Santa Cruz"]]$Decesos)]
 rn=bd[["Santa Cruz"]]$Recuperados[length(bd[["Santa Cruz"]]$Recuperados)]
-an=bd[["Santa Cruz"]]$Activos[length(bd[["Santa Cruz"]]$Activos)]
+#an=bd[["Santa Cruz"]]$Activos[length(bd[["Santa Cruz"]]$Activos)]
+sumcn=cn+dn+rn
 
-cn_sc=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+cn_sc=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 
 data.frame(cn_sc)
 ```
@@ -656,11 +665,12 @@ highchart(type = "stock") %>%
 cn=bd[["Tarija"]]$Confirmados[length(bd[["Tarija"]]$Confirmados)]
 dn=bd[["Tarija"]]$Decesos[length(bd[["Tarija"]]$Decesos)]
 rn=bd[["Tarija"]]$Recuperados[length(bd[["Tarija"]]$Recuperados)]
-an=bd[["Tarija"]]$Activos[length(bd[["Tarija"]]$Activos)]
+#an=bd[["Tarija"]]$Activos[length(bd[["Tarija"]]$Activos)]
+sumcn=cn+dn+rn
 
-cn_tj=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
-Casos_Nuevos=c(cn,dn,rn,an),
-Porcentaje=c(100,round(dn/cn*100,1),round(rn/cn*100,1),round(an/cn*100,1)))
+cn_tj=list(Tipo=c("Confirmados","Decesos","Recuperados"),
+Casos_Nuevos=c(cn,dn,rn),
+Porcentaje=c(round(cn/sumcn*100,1),round(dn/sumcn*100,1),round(rn/sumcn*100,1)))
 
 data.frame(cn_tj)
 ```
@@ -712,8 +722,9 @@ graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Confirmados,group=depto)) %>%
 
 
 ```
+
 ```{r tabla_dep_abs_cn1}
-data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados" ),
            Beni=cn_bn$Casos_Nuevos,
            Cochabamba=cn_cb$Casos_Nuevos,
            Chuquisaca=cn_ch$Casos_Nuevos,
@@ -723,10 +734,11 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
            Potosí=cn_pt$Casos_Nuevos,
            Santa_Cruz=cn_sc$Casos_Nuevos,
            Tarija=cn_tj$Casos_Nuevos)
+
 ```
 
 ```{r tabla_dep_por_cn1}
-data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados" ),
            Pct_Beni=cn_bn$Porcentaje,
            Pct_Cochabamba=cn_cb$Porcentaje,
            Pct_Chuquisaca=cn_ch$Porcentaje,
@@ -746,7 +758,7 @@ graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Decesos,group=depto))%>%
   hc_add_theme(hc_theme_darkunica())
 ```
 ```{r tabla_dep_abs_cn2}
-data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados" ),
            Beni=cn_bn$Casos_Nuevos,
            Cochabamba=cn_cb$Casos_Nuevos,
            Chuquisaca=cn_ch$Casos_Nuevos,
@@ -759,7 +771,7 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_cn2}
-data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados" ),
            Pct_Beni=cn_bn$Porcentaje,
            Pct_Cochabamba=cn_cb$Porcentaje,
            Pct_Chuquisaca=cn_ch$Porcentaje,
@@ -780,7 +792,7 @@ graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Recuperados,group=depto))%>%
 
 ```
 ```{r tabla_dep_abs_cn3}
-data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados"),
            Beni=cn_bn$Casos_Nuevos,
            Cochabamba=cn_cb$Casos_Nuevos,
            Chuquisaca=cn_ch$Casos_Nuevos,
@@ -793,7 +805,7 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_cn3}
-data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados"),
            Pct_Beni=cn_bn$Porcentaje,
            Pct_Cochabamba=cn_cb$Porcentaje,
            Pct_Chuquisaca=cn_ch$Porcentaje,
@@ -815,6 +827,7 @@ graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Total_Confirmados,group=depto))%
 
 ```
 
+
 ```{r tabla_dep_abs_ca1}
 data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
            Beni=tabla_beni$Casos_Acumulados,
@@ -829,7 +842,7 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_ca1}
-data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
            Pct_Beni=tabla_beni$Porcentaje,
            Pct_Cochabamba=tabla_cochabamba$Porcentaje,
            Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
@@ -865,7 +878,7 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_ca2}
-data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
            Pct_Beni=tabla_beni$Porcentaje,
            Pct_Cochabamba=tabla_cochabamba$Porcentaje,
            Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
@@ -900,7 +913,7 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_ca3}
-data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
            Pct_Beni=tabla_beni$Porcentaje,
            Pct_Cochabamba=tabla_cochabamba$Porcentaje,
            Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
@@ -935,7 +948,7 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_ca4}
-data.frame(Tipo=c("Total Confirmados","Total Decesos","Total Recuperados","Total Activos" ),
+data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
            Pct_Beni=tabla_beni$Porcentaje,
            Pct_Cochabamba=tabla_cochabamba$Porcentaje,
            Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
