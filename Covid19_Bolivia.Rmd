@@ -132,7 +132,7 @@ tabla_bolivia=list(tabla_bolivia)
 
 tabla_bolivia=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_bolivia[[1]]$Confirmados,tabla_bolivia[[1]]$Decesos,tabla_bolivia[[1]]$Recuperados,tabla_bolivia[[1]]$Activos),
-                   Porcentaje=c(100,round(tabla_bolivia[[1]]$Decesos/tabla_bolivia[[1]]$Confirmados*100,1),
+                   Tasa=c(NA,round(tabla_bolivia[[1]]$Decesos/tabla_bolivia[[1]]$Confirmados*100,1),
                              round(tabla_bolivia[[1]]$Recuperados/tabla_bolivia[[1]]$Confirmados*100,1),
                              round(tabla_bolivia[[1]]$Activos/tabla_bolivia[[1]]$Confirmados*100,1)))
 data.frame(tabla_bolivia)
