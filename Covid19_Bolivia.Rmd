@@ -194,7 +194,7 @@ tabla_beni=list(tabla_beni)
 
 tabla_beni=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_beni[[1]]$Confirmados,tabla_beni[[1]]$Decesos,tabla_beni[[1]]$Recuperados,tabla_beni[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_beni[[1]]$Decesos/tabla_beni[[1]]$Confirmados*100,1),
                                 round(tabla_beni[[1]]$Recuperados/tabla_beni[[1]]$Confirmados*100,1),
                                 round(tabla_beni[[1]]$Activos/tabla_beni[[1]]$Confirmados*100,1)))
@@ -254,7 +254,7 @@ tabla_cochabamba=list(tabla_cochabamba)
 
 tabla_cochabamba=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_cochabamba[[1]]$Confirmados,tabla_cochabamba[[1]]$Decesos,tabla_cochabamba[[1]]$Recuperados,tabla_cochabamba[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_cochabamba[[1]]$Decesos/tabla_cochabamba[[1]]$Confirmados*100,1),
                                 round(tabla_cochabamba[[1]]$Recuperados/tabla_cochabamba[[1]]$Confirmados*100,1),
                                 round(tabla_cochabamba[[1]]$Activos/tabla_cochabamba[[1]]$Confirmados*100,1)))
@@ -320,7 +320,7 @@ tabla_chuquisaca=list(tabla_chuquisaca)
 
 tabla_chuquisaca=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_chuquisaca[[1]]$Confirmados,tabla_chuquisaca[[1]]$Decesos,tabla_chuquisaca[[1]]$Recuperados,tabla_chuquisaca[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_chuquisaca[[1]]$Decesos/tabla_chuquisaca[[1]]$Confirmados*100,1),
                                 round(tabla_chuquisaca[[1]]$Recuperados/tabla_chuquisaca[[1]]$Confirmados*100,1),
                                 round(tabla_chuquisaca[[1]]$Activos/tabla_chuquisaca[[1]]$Confirmados*100,1)))
@@ -384,7 +384,7 @@ tabla_lapaz=list(tabla_lapaz)
 
 tabla_lapaz=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_lapaz[[1]]$Confirmados,tabla_lapaz[[1]]$Decesos,tabla_lapaz[[1]]$Recuperados,tabla_lapaz[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_lapaz[[1]]$Decesos/tabla_lapaz[[1]]$Confirmados*100,1),
                                 round(tabla_lapaz[[1]]$Recuperados/tabla_lapaz[[1]]$Confirmados*100,1),
                                 round(tabla_lapaz[[1]]$Activos/tabla_lapaz[[1]]$Confirmados*100,1)))
@@ -446,7 +446,7 @@ tabla_oruro=list(tabla_oruro)
 
 tabla_oruro=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_oruro[[1]]$Confirmados,tabla_oruro[[1]]$Decesos,tabla_oruro[[1]]$Recuperados,tabla_oruro[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_oruro[[1]]$Decesos/tabla_oruro[[1]]$Confirmados*100,1),
                                 round(tabla_oruro[[1]]$Recuperados/tabla_oruro[[1]]$Confirmados*100,1),
                                 round(tabla_oruro[[1]]$Activos/tabla_oruro[[1]]$Confirmados*100,1)))
@@ -510,7 +510,7 @@ tabla_pando=list(tabla_pando)
 
 tabla_pando=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_pando[[1]]$Confirmados,tabla_pando[[1]]$Decesos,tabla_pando[[1]]$Recuperados,tabla_pando[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_pando[[1]]$Decesos/tabla_pando[[1]]$Confirmados*100,1),
                                 round(tabla_pando[[1]]$Recuperados/tabla_pando[[1]]$Confirmados*100,1),
                                 round(tabla_pando[[1]]$Activos/tabla_pando[[1]]$Confirmados*100,1)))
@@ -573,7 +573,7 @@ tabla_potosi=list(tabla_potosi)
 
 tabla_potosi=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_potosi[[1]]$Confirmados,tabla_potosi[[1]]$Decesos,tabla_potosi[[1]]$Recuperados,tabla_potosi[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_potosi[[1]]$Decesos/tabla_potosi[[1]]$Confirmados*100,1),
                                 round(tabla_potosi[[1]]$Recuperados/tabla_potosi[[1]]$Confirmados*100,1),
                                 round(tabla_potosi[[1]]$Activos/tabla_potosi[[1]]$Confirmados*100,1)))
@@ -636,7 +636,7 @@ tabla_santacruz=list(tabla_santacruz)
 
 tabla_santacruz=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_santacruz[[1]]$Confirmados,tabla_santacruz[[1]]$Decesos,tabla_santacruz[[1]]$Recuperados,tabla_santacruz[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_santacruz[[1]]$Decesos/tabla_santacruz[[1]]$Confirmados*100,1),
                                 round(tabla_santacruz[[1]]$Recuperados/tabla_santacruz[[1]]$Confirmados*100,1),
                                 round(tabla_santacruz[[1]]$Activos/tabla_santacruz[[1]]$Confirmados*100,1)))
@@ -699,7 +699,7 @@ tabla_tarija=list(tabla_tarija)
 
 tabla_tarija=list(Tipo=c("Confirmados","Decesos","Recuperados","Activos"),
                    Casos_Acumulados=c(tabla_tarija[[1]]$Confirmados,tabla_tarija[[1]]$Decesos,tabla_tarija[[1]]$Recuperados,tabla_tarija[[1]]$Activos),
-                   Porcentaje=c(100,
+                   Tasa=c(NA,
                                 round(tabla_tarija[[1]]$Decesos/tabla_tarija[[1]]$Confirmados*100,1),
                                 round(tabla_tarija[[1]]$Recuperados/tabla_tarija[[1]]$Confirmados*100,1),
                                 round(tabla_tarija[[1]]$Activos/tabla_tarija[[1]]$Confirmados*100,1)))
@@ -791,6 +791,7 @@ graf_dep %>% hchart(type='line',hcaes(x=Fecha,y=Recuperados,group=depto))%>%
   hc_add_theme(hc_theme_darkunica())
 
 ```
+
 ```{r tabla_dep_abs_cn3}
 data.frame(Tipo=c("Confirmados","Decesos","Recuperados"),
            Beni=cn_bn$Casos_Nuevos,
@@ -842,16 +843,19 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_ca1}
-data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
-           Pct_Beni=tabla_beni$Porcentaje,
-           Pct_Cochabamba=tabla_cochabamba$Porcentaje,
-           Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
-           Pct_La_Paz=tabla_lapaz$Porcentaje,
-           Pct_Oruro=tabla_oruro$Porcentaje,
-           Pct_Pando=tabla_pando$Porcentaje,
-           Pct_Potosí=tabla_potosi$Porcentaje,
-           Pct_Santa_Cruz=tabla_santacruz$Porcentaje,
-           Pct_Tarija=tabla_tarija$Porcentaje)
+tdepca=data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
+           Tasa_Beni=tabla_beni$Tasa ,
+           Tasa_Cochabamba=tabla_cochabamba$Tasa,
+           Tasa_Chuquisaca=tabla_chuquisaca$Tasa,
+           Tasa_La_Paz=tabla_lapaz$Tasa,
+           Tasa_Oruro=tabla_oruro$Tasa,
+           Tasa_Pando=tabla_pando$Tasa,
+           Tasa_Potosí=tabla_potosi$Tasa,
+           Tasa_Santa_Cruz=tabla_santacruz$Tasa,
+           Tasa_Tarija=tabla_tarija$Tasa)
+
+tdepca %>% 
+  filter(Tipo!="Confirmados")
 ```
 
 
@@ -878,16 +882,8 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_ca2}
-data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
-           Pct_Beni=tabla_beni$Porcentaje,
-           Pct_Cochabamba=tabla_cochabamba$Porcentaje,
-           Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
-           Pct_La_Paz=tabla_lapaz$Porcentaje,
-           Pct_Oruro=tabla_oruro$Porcentaje,
-           Pct_Pando=tabla_pando$Porcentaje,
-           Pct_Potosí=tabla_potosi$Porcentaje,
-           Pct_Santa_Cruz=tabla_santacruz$Porcentaje,
-           Pct_Tarija=tabla_tarija$Porcentaje)
+tdepca %>% 
+  filter(Tipo!="Confirmados")
 ```
 
 ### Recuperados (ca) {-}
@@ -913,16 +909,8 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_ca3}
-data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
-           Pct_Beni=tabla_beni$Porcentaje,
-           Pct_Cochabamba=tabla_cochabamba$Porcentaje,
-           Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
-           Pct_La_Paz=tabla_lapaz$Porcentaje,
-           Pct_Oruro=tabla_oruro$Porcentaje,
-           Pct_Pando=tabla_pando$Porcentaje,
-           Pct_Potosí=tabla_potosi$Porcentaje,
-           Pct_Santa_Cruz=tabla_santacruz$Porcentaje,
-           Pct_Tarija=tabla_tarija$Porcentaje)
+tdepca %>% 
+  filter(Tipo!="Confirmados")
 ```
 
 ### Activos (ca) {-}
@@ -948,15 +936,7 @@ data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
 ```
 
 ```{r tabla_dep_por_ca4}
-data.frame(Tipo=c("Confirmados","Decesos","Recuperados","Activos" ),
-           Pct_Beni=tabla_beni$Porcentaje,
-           Pct_Cochabamba=tabla_cochabamba$Porcentaje,
-           Pct_Chuquisaca=tabla_chuquisaca$Porcentaje,
-           Pct_La_Paz=tabla_lapaz$Porcentaje,
-           Pct_Oruro=tabla_oruro$Porcentaje,
-           Pct_Pando=tabla_pando$Porcentaje,
-           Pct_Potosí=tabla_potosi$Porcentaje,
-           Pct_Santa_Cruz=tabla_santacruz$Porcentaje,
-           Pct_Tarija=tabla_tarija$Porcentaje)
+tdepca %>% 
+  filter(Tipo!="Confirmados")
 ```
 
