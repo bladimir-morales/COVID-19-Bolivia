@@ -17,11 +17,13 @@ text-align: justify}
 }
 </style>
 
-La información que se presenta a través de gráficos dinámicos y datos estadísticos, permite conocer la evolución del COVID-19 desde una perspectiva histórica y actual de los contagios a nivel Bolivia y Departamento, contrastado con el número de Casos Nuevos,  Casos Acumulados, por Tipo de Casos (Confirmados, Recuperados, Decesos y Activos).
+La información que se presenta a través de gráficos dinámicos y datos estadísticos, permite conocer la evolución del COVID-19 desde una perspectiva histórica y actual de los contagios a nivel Bolivia y Departamento, contrastado con el número de Casos Nuevos,  Casos Acumulados, por Tipo de Casos (Confirmados (Conf), Recuperados (Rec), Decesos (Dec) y Activos (Act)).
 
 Tomar en cuenta:
 
-$$ Activos=confirmados-decesos-recuperados$$
+$$ Act=conf-Dec-Rec$$
+
+$$Conf=Act+Dec+Rec$$
 
 La pulsación en los botones y leyendas de los gráficos dinámicos permite generar información de acuerdo al requerimiento del usuario. 
 
@@ -45,7 +47,7 @@ rm(list=ls())
 etiquetas_abr=c("bn","cb","ch","lp","or","pn","pt","sc","tj")
 bd=list()
 for(i in 1:9){
- bd_dep=data.frame(read_xlsx("C:\\Users\\Bladimir\\Documents\\Proyectos\\COVID-19 Bolivia\\COVID-19-Bolivia\\BD\\BD_dpto.xlsx",sheet = etiquetas_abr[i] )) %>% 
+ bd_dep=data.frame(read_xlsx("BD\\BD_dpto.xlsx",sheet = etiquetas_abr[i] )) %>% 
    mutate(Activos=Confirmados-Decesos-Recuperados,
          Total_Confirmados= Confirmados %>%  accumulate(`+`),
          Total_Decesos= Decesos %>%  accumulate(`+`),
