@@ -1,7 +1,7 @@
 ---
 title: "Covid-19 en Bolivia"
 author: "Bladimir Morales Torrez"
-date: "`r format(Sys.time(), 'Actualizado a %d %B, %Y')`"
+date: "`r format(Sys.time(), 'Bolivia %d %B, %Y')`"
 output:
   html_document:
     number_sections: true
